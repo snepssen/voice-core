@@ -80,13 +80,31 @@ public final class EspeakPhonemizer: @unchecked Sendable {
         Self.lock.lock()
         defer { Self.lock.unlock() }
         if !Self.initialized {
-            let result = dataDirectory.path.withCString { path in
+            let result = Self.reachable(dataDirectory).path.withCString { path in
                 espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, 0, path, 0)
             }
             guard result >= 0 else { throw PhonemizerError.initializationFailed }
             Self.initialized = true
         }
         try Self.select(voice)
+    }
+
+    /// espeak-ng copies the data path into a 160-byte buffer (`N_PATH_HOME`)
+    /// and, if it does not fit, silently uses /usr/local/share instead, which
+    /// an app does not have: every phoneme then fails. A resource bundle inside
+    /// a test runner is 177 characters deep, and an app installed somewhere
+    /// long would be too. A longer path is reached through a short link in the
+    /// temporary folder.
+    static func reachable(_ directory: URL) -> URL {
+        let path = directory.standardizedFileURL.path
+        guard path.utf8.count > 120 else { return directory }
+        let link = FileManager.default.temporaryDirectory
+            .appending(path: "espeak-ng-data-\(String(path.utf8.reduce(UInt64(14_695_981_039_346_656_037)) { ($0 ^ UInt64($1)) &* 1_099_511_628_211 }, radix: 36))")  // FNV-1a: the same link every launch
+        if (try? FileManager.default.destinationOfSymbolicLink(atPath: link.path)) != path {
+            try? FileManager.default.removeItem(at: link)
+            try? FileManager.default.createSymbolicLink(atPath: link.path, withDestinationPath: path)
+        }
+        return link.path.utf8.count < path.utf8.count ? link : directory
     }
 
     /// Under `lock`.

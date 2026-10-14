@@ -49,6 +49,18 @@ final class VoiceCoreTests: XCTestCase {
         XCTAssertGreaterThan(checked, 30)
     }
 
+    /// espeak-ng ignores a data path longer than its buffer; a deep one is
+    /// reached through a short link to the same folder.
+    func testDeepDataPathIsReachable() throws {
+        let data = try XCTUnwrap(EspeakData.directory)
+        let deep = URL(fileURLWithPath: "/" + String(repeating: "deep-folder/", count: 16) + "espeak-ng-data")
+        XCTAssertEqual(EspeakPhonemizer.reachable(data.deletingLastPathComponent().appending(path: "espeak-ng-data")).resolvingSymlinksInPath().path,
+                       data.resolvingSymlinksInPath().path)
+        let link = EspeakPhonemizer.reachable(deep)
+        XCTAssertLessThan(link.path.utf8.count, 120)
+        XCTAssertEqual(try FileManager.default.destinationOfSymbolicLink(atPath: link.path), deep.path)
+    }
+
     /// Two phonemizers in different languages, used in turn, each stay theirs.
     func testPhonemizersKeepTheirOwnVoice() throws {
         let data = try XCTUnwrap(EspeakData.directory)
