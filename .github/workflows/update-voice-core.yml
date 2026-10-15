@@ -42,7 +42,6 @@ jobs:
         id: resolve
         working-directory: ${{ inputs.package-path }}
         run: |
-          before=$(git rev-parse HEAD:"${{ inputs.package-path }}/Package.resolved" 2>/dev/null || echo none)
           swift package update voice-core
           if git diff --quiet -- Package.resolved; then
             echo "changed=false" >> "$GITHUB_OUTPUT"; echo "already on the newest voice-core"
