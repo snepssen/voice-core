@@ -1,0 +1,69 @@
+name: update voice-core
+
+# Called from each app that depends on voice-core (the Interpreter, Voice
+# Forge, Gateway Forge), daily and on demand. It moves the app to the newest
+# voice-core release, runs that app's own checks, and commits and pushes the
+# new Package.resolved only if they pass: the auto-merge, with each app's own
+# token, so voice-core needs no secret. A run started by hand always runs the
+# checks, even with nothing to update, so the pipeline can be verified.
+on:
+  workflow_call:
+    inputs:
+      package-path:
+        description: the folder holding the app's Package.swift
+        type: string
+        default: "."
+      checks:
+        description: the app's checks, run in package-path
+        type: string
+        required: true
+      prepare:
+        description: anything the checks need first, run at the repository root
+        type: string
+        default: ""
+      always-check:
+        type: boolean
+        default: false
+      runner:
+        type: string
+        default: macos-latest
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Newest voice-core
+        id: resolve
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          before=$(git rev-parse HEAD:"${{ inputs.package-path }}/Package.resolved" 2>/dev/null || echo none)
+          swift package update voice-core
+          if git diff --quiet -- Package.resolved; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"; echo "already on the newest voice-core"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"; git diff -- Package.resolved | grep -E '^[-+].*"version"' || true
+          fi
+      - name: Prepare
+        if: (steps.resolve.outputs.changed == 'true' || inputs.always-check) && inputs.prepare != ''
+        run: ${{ inputs.prepare }}
+      - name: The app's checks
+        if: steps.resolve.outputs.changed == 'true' || inputs.always-check
+        working-directory: ${{ inputs.package-path }}
+        run: ${{ inputs.checks }}
+      - name: Commit and push
+        if: steps.resolve.outputs.changed == 'true'
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          version=$(python3 -c "import json; print([p['state'].get('version') for p in json.load(open('Package.resolved'))['pins'] if p['identity']=='voice-core'][0])")
+          git add Package.resolved
+          git commit -q -m "voice-core $version"
+          git push -q origin HEAD
+          echo "updated to voice-core $version, checks passed, pushed"
