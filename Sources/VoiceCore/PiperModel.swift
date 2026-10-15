@@ -78,7 +78,11 @@ public final class PiperModel: @unchecked Sendable {
     /// `trailingPads` more pads and `$`. Unknown symbols are skipped, as
     /// `phonemes_to_ids` skips them.
     public func ids(_ phonemes: String, trailingPads: Int = 0) -> [Int] {
-        let map = config.phoneme_id_map
+        Self.ids(phonemes, map: config.phoneme_id_map, trailingPads: trailingPads)
+    }
+
+    /// The same layout for any id map, without a loaded model.
+    public static func ids(_ phonemes: String, map: [String: [Int]], trailingPads: Int = 0) -> [Int] {
         let pad = map["_"] ?? []
         var ids = (map["^"] ?? []) + pad
         for scalar in phonemes.unicodeScalars {

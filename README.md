@@ -21,7 +21,7 @@ bump in each of them, checked by that app's own tests before it lands.
 What is shared is mechanism, not taste. How ids are laid out stays in each
 app: Gateway Forge's two trailing pads, Voice Forge's token layout and directed
 pauses, the polyglot voice's one run per sentence. A change here must leave
-every app's output as it was. The tests hold it to that: English phonemes word
+every app's output as it was. The tests hold it to that: Gateway Forge's 481 inference calls phoneme for phoneme and id for id, English phonemes word
 for word as Voice Forge's own build gave them, Polyphon id for id against the
 Python, respellings and em dashes as options.
 

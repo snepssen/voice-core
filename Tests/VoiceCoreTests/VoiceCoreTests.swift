@@ -18,6 +18,26 @@ final class VoiceCoreTests: XCTestCase {
         }
     }
 
+    /// Gateway Forge's voice, call for call: every sentence its engine sent
+    /// before it moved onto voice-core, as phonemes and as ids, through its
+    /// options and its two trailing pads.
+    func testGatewayForgeCallsAreUnchanged() throws {
+        let gateway = try EspeakPhonemizer(dataDirectory: XCTUnwrap(EspeakData.directory), voice: "en-us",
+                                           respellings: [("I-There", "Eye-There"), ("REBAL", "Reeball")],
+                                           spacesEmDashes: false)
+        let mapURL = try XCTUnwrap(Bundle.module.url(forResource: "Fixtures/phoneme_id_map", withExtension: "json"))
+        let map = try JSONDecoder().decode([String: [Int]].self, from: Data(contentsOf: mapURL))
+        var checked = 0
+        for row in try Self.fixture("gateway_forge_calls.tsv") {
+            let phonemes = try gateway.phonemize(row[0], dropFinalStop: true)
+            XCTAssertEqual(phonemes, row[1], row[0])
+            XCTAssertEqual(PiperModel.ids(phonemes, map: map, trailingPads: 2),
+                           row[2].split(separator: " ").compactMap { Int($0) }, row[0])
+            checked += 1
+        }
+        XCTAssertGreaterThan(checked, 300)
+    }
+
     /// Gateway Forge's policy, as options: its two respellings, and no em-dash spacing.
     func testRespellingsAndEmDashesAreOptions() throws {
         let data = try XCTUnwrap(EspeakData.directory)
