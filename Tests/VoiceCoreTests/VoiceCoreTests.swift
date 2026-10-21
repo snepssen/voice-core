@@ -9,6 +9,26 @@ final class VoiceCoreTests: XCTestCase {
             .filter { !$0.hasPrefix("#") }.map { $0.split(separator: "\t", omittingEmptySubsequences: false).map(String.init) }
     }
 
+    /// No library source reaches its resources through SwiftPM's generated
+    /// `Bundle.module`: its search differs by toolchain and ends in
+    /// `fatalError`, which shipped as a crash on first render in Gateway
+    /// Forge 5.3.1. (Tests may use it; they always run from the build tree.)
+    /// The data is still found, from wherever this run keeps the bundle.
+    func testResourcesAreNotFoundThroughBundleModule() throws {
+        let sources = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Sources")
+        let walker = try XCTUnwrap(FileManager.default.enumerator(at: sources, includingPropertiesForKeys: nil))
+        var uses: [String] = []
+        for case let url as URL in walker where url.pathExtension == "swift" {
+            let source = try String(contentsOf: url, encoding: .utf8)
+            if source.contains("Bundle" + ".module.") { uses.append(url.lastPathComponent) }
+        }
+        XCTAssertEqual(uses, [], "resources found through Bundle.module")
+        let data = try XCTUnwrap(EspeakData.directory)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: data.appending(path: "phontab").path))
+    }
+
     /// The shared espeak-ng build says what Voice Forge's said, word for word:
     /// the NORTH/FORCE vowel, clause marks, a spaced em dash.
     func testEnglishMatchesVoiceForge() throws {
