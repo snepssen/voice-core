@@ -11,7 +11,9 @@ import Foundation
 /// never given). Everything else was the same code.
 ///
 /// This is a direct Swift port of the C logic already verified working in
-/// this project's Python tooling (`tools-python/piper1-gpl/src/piper/espeakbridge.c`)
+/// upstream piper1-gpl's `src/piper/espeakbridge.c`
+/// (https://github.com/OHF-Voice/piper1-gpl/blob/cb59d2dcc74602a24d02d235092c62f9d4a19c84/src/piper/espeakbridge.c),
+/// the revision that pins espeak-ng at 724808c5, the same pin as `scripts/build-espeak.sh`
 /// — the clause-terminator constants and their masking are copied from there
 /// exactly, not re-derived, since getting the bit arithmetic subtly wrong
 /// here would silently misplace sentence/clause boundaries rather than fail
