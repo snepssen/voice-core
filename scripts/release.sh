@@ -26,6 +26,7 @@ APPS=(
   "interpreter-forge|apple|swift run -q tccheck && swift test"
   "voice-forge|macos|swift run -q vfcheck && ../scripts/check-shared-assets.sh"
   "gateway-forge|.|swift run -q gfcheck"
+  "companion-forge|.|swift run -q cccheck"
 )
 failed=()
 for entry in "${APPS[@]}"; do
