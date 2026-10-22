@@ -3,7 +3,7 @@
 The speech engine every snepssen app shares, from one source:
 [Voice Forge](https://github.com/snepssen/voice-forge),
 [Gateway Forge](https://github.com/snepssen/gateway-forge) and the
-Interpreter ([translate-core](https://github.com/snepssen/translate-core)).
+Interpreter ([interpreter-forge](https://github.com/snepssen/interpreter-forge)).
 
 Each of them carried a copy of the same pieces, and the copies drifted: three
 espeak-ng builds of one pinned revision, the same 513 files of its data three

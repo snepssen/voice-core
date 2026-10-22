@@ -3,7 +3,7 @@ import PackageDescription
 
 // voice-core: the speech engine every snepssen app shares, from one source.
 //
-// Voice Forge, Gateway Forge and the Interpreter (translate-core) each carried
+// Voice Forge, Gateway Forge and the Interpreter (interpreter-forge) each carried
 // a copy of the same pieces, and the copies drifted: three espeak-ng builds of
 // one pinned revision, the same 513 files of its data three times, a
 // phonemizer in three versions, Polyphon in two languages. Each app now

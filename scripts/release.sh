@@ -23,7 +23,7 @@ echo "released voice-core $VERSION"
 
 # app folder (relative to ROOT) | package folder within it | its checks
 APPS=(
-  "translate-core|apple|swift run -q tccheck && swift test"
+  "interpreter-forge|apple|swift run -q tccheck && swift test"
   "voice-forge|macos|swift run -q vfcheck && ../scripts/check-shared-assets.sh"
   "gateway-forge|.|swift run -q gfcheck"
 )
