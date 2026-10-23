@@ -13,3 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: swift test
+
+  # espeak-ng from its own sources and ONNX Runtime's C API, held to the same
+  # phoneme fixtures the Mac's XCFramework wrote. The runtime is required
+  # here, so a missing library fails instead of skipping the inference test.
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - name: ONNX Runtime
+        run: scripts/fetch-onnxruntime.sh
+      - run: swift test
+        env:
+          VOICE_CORE_REQUIRE_RUNTIME: "1"

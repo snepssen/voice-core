@@ -1,0 +1,5 @@
+module COnnxRuntime {
+    header "voicecore_ort.h"
+    link "dl"
+    export *
+}
