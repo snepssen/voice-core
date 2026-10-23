@@ -209,7 +209,7 @@ private final class Engine: @unchecked Sendable {
             }
             var env: OpaquePointer?
             if let status = api.pointee.CreateEnv(ORT_LOGGING_LEVEL_WARNING, "voice-core", &env) {
-                let message = String(cString: api.pointee.GetErrorMessage(status))
+                let message = api.pointee.GetErrorMessage(status).map { String(cString: $0) } ?? "an error with no message"
                 api.pointee.ReleaseStatus(status)
                 return .failure(.runtime(message))
             }
@@ -237,7 +237,7 @@ private final class Engine: @unchecked Sendable {
 
     private static func check(_ api: UnsafePointer<OrtApi>, _ status: OpaquePointer?) throws {
         guard let status else { return }
-        let message = String(cString: api.pointee.GetErrorMessage(status))
+        let message = api.pointee.GetErrorMessage(status).map { String(cString: $0) } ?? "an error with no message"
         api.pointee.ReleaseStatus(status)
         throw PiperModel.Failure.runtime(message)
     }
