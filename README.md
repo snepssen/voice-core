@@ -48,9 +48,10 @@ let audio = try model.infer(ids, noiseScale: 0.667, lengthScale: 1, noiseW: 0.8)
 
 From GitHub: Actions → **release** → run, with a version. The tests run on
 macOS; if they pass, the version is tagged. Each app's own daily
-**voice-core** workflow (`update-voice-core.yml`, reused from here) then moves
-it to the new version after its own checks pass, and pushes; start one by hand
-from that app's Actions tab to have it at once.
+**dependencies** workflow (site-core's `update-dependency.yml`, which every
+workshop -core shares) then moves it to the new version after its own checks
+pass, and pushes; start one by hand from that app's Actions tab to have it at
+once.
 
 From a Mac with the apps checked out beside this one:
 
