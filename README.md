@@ -44,7 +44,27 @@ let ids = model.ids(try espeak.phonemize("Build the pattern.", dropFinalStop: tr
 let audio = try model.infer(ids, noiseScale: 0.667, lengthScale: 1, noiseW: 0.8).samples
 ```
 
-## Release
+## For Electron: `js/`
+
+The same phonemizer for Node and Electron. `js/espeak.wasm` is espeak-ng
+724808c compiled to WebAssembly from the sources the Linux build uses
+(`scripts/build-espeak-wasm.sh`, emscripten); `js/phonemizer.mjs` is
+`EspeakPhonemizer`'s clause loop, mirrored line for line, with the same
+options (respellings, em-dash spacing).
+
+```js
+import { open } from "./phonemizer.mjs";
+const espeak = await open({ dataParent: "…/Resources", voice: "en-us" });
+espeak.phonemize("Exhale, and you'll be in Focus 10.", { dropFinalStop: true });
+```
+
+It exists because the `piper-phonemize` npm package bundles espeak-ng
+1.52.0, which lacks the glide 724808c inserts (`biːʲ ɪn`): over 923 real
+lines it gave a different phoneme stream on 255, 240 of them by that glide
+alone. This build differs on none, and `node --test js/test.mjs` holds it to
+the Swift build's fixtures. An app copies `js/` in; it is not an npm package.
+
+
 
 From GitHub: Actions → **release** → run, with a version. The tests run on
 macOS; if they pass, the version is tagged. Each app's own daily
