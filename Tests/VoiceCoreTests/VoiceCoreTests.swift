@@ -29,6 +29,32 @@ final class VoiceCoreTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: data.appending(path: "phontab").path))
     }
 
+    /// One inference call through the runtime this platform has: Microsoft's
+    /// Apple package, or on Linux its C API from the library opened at run
+    /// time. The fixture graph has a voice's inputs and returns the ids times
+    /// the length scale (make_fixture.py), so the answer is known exactly.
+    func testOneInferenceCallReadsBackWhatTheGraphComputes() throws {
+        let model = try XCTUnwrap(Bundle.module.url(forResource: "Fixtures/piper_shape", withExtension: "onnx"))
+        let voice: PiperModel
+        do {
+            voice = try PiperModel(model: model)
+        } catch PiperModel.Failure.runtimeMissing(let why) {
+            // CI sets this, so a runner without the library fails rather than skips.
+            if ProcessInfo.processInfo.environment["VOICE_CORE_REQUIRE_RUNTIME"] == "1" {
+                XCTFail("ONNX Runtime is required here: \(why)")
+                return
+            }
+            throw XCTSkip("no ONNX Runtime library on this machine (\(why))")
+        }
+        XCTAssertFalse(voice.takesDurationFactors, "the fixture has no duration input")
+        XCTAssertEqual(voice.outputNames, ["output"])
+        let ids = voice.ids("aa")
+        XCTAssertEqual(ids, [1, 0, 14, 0, 14, 0, 2])
+        let out = try voice.infer(ids, noiseScale: 0.667, lengthScale: 1.5, noiseW: 0.8)
+        XCTAssertEqual(out.samples, ids.map { Float($0) * 1.5 })
+        XCTAssertEqual(out.extra, [:])
+    }
+
     /// The shared espeak-ng build says what Voice Forge's said, word for word:
     /// the NORTH/FORCE vowel, clause marks, a spaced em dash.
     func testEnglishMatchesVoiceForge() throws {

@@ -22,12 +22,20 @@ public enum EspeakData {
                let data = bundle.url(forResource: "espeak-ng-data", withExtension: nil) {
                 return data
             }
+            // Off Apple platforms SwiftPM's resources are a plain folder
+            // beside the executable, not a bundle.
+            let folder = root.appending(path: resourcesName).appending(path: "espeak-ng-data")
+            if FileManager.default.fileExists(atPath: folder.appending(path: "phontab").path) {
+                return folder
+            }
         }
         return nil
     }
 
     /// SwiftPM's name for this target's resource bundle.
     static let bundleName = "VoiceCore_VoiceCore.bundle"
+    /// And for its resources folder, where there are no bundles (Linux).
+    static let resourcesName = "VoiceCore_VoiceCore.resources"
 
     /// Every folder an app, a framework, a command-line tool or a test run
     /// keeps this package's resource bundle in, most specific first:
