@@ -57,8 +57,10 @@ From a Mac with the apps checked out beside this one:
 
     scripts/release.sh 1.1.0
 
-runs the tests, tags and pushes the version, then, in each app checked out
-beside this one, updates the dependency, runs that app's checks and commits and
+(site-core's `workshop release`, so site-core has to be checked out beside
+this one too) runs the tests, tags and pushes the version, then, in each app
+that `ecosystem.json` says uses voice-core and that is checked out beside this
+one, updates the dependency, runs that app's checks and commits and
 pushes the bump if they pass. A bump that fails its app's checks is left
 uncommitted and reported.
 

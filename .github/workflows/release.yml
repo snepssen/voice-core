@@ -2,7 +2,7 @@ name: release
 
 # Release voice-core from the Actions tab: give a version (like 1.0.3); the
 # tests run on macOS and, if they pass, the version is tagged and pushed. Each
-# app's own daily "voice-core" workflow then moves to it after that app's
+# app's own daily "dependencies" workflow then moves to it after that app's
 # checks pass (or start one by hand to have it at once). scripts/release.sh
 # does the same from a Mac with the apps checked out beside this one.
 on:
