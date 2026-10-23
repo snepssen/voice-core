@@ -34,7 +34,7 @@ for entry in "${APPS[@]}"; do
   dir="$ROOT/$app/$pkg"
   [ -f "$dir/Package.swift" ] && grep -q "voice-core" "$dir/Package.swift" || continue
   echo "== $app"
-  # GitHub Actions bumps apps too (voice-core.yml): start from its latest.
+  # GitHub Actions bumps apps too (dependencies.yml): start from its latest.
   git -C "$ROOT/$app" pull -q --ff-only || { echo "   could not fast-forward; skipped"; failed+=("$app"); continue; }
   (cd "$dir" && swift package update voice-core >/dev/null)
   resolved=$(cd "$ROOT/$app" && git status --porcelain -- "$pkg/Package.resolved")
