@@ -30,7 +30,7 @@ let runtime: [Target.Dependency] = [
 ]
 let extraTargets: [Target] = []
 let dependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/microsoft/onnxruntime-swift-package-manager", from: "1.20.0"),
+    .package(url: "https://github.com/snepssen/onnxruntime-swift-package-manager", from: "1.20.0"),
 ]
 #else
 let espeak: Target = .target(
